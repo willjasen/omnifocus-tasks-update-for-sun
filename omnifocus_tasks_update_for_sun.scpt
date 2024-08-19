@@ -1,8 +1,11 @@
 -- Step 1: Get the sunset time using a shell command or external tool
 set latitude to "36.320960"
 set longitude to "-82.341760"
-set json to do shell script "curl -s 'https://api.sunrise-sunset.org/json?lat=" & latitude & "&lng=" & longitude & "&formatted=1&tzid=America/New_York'"
+set timezone to "America/New_York"
+set json to do shell script "curl -s 'https://api.sunrise-sunset.org/json?lat=" & latitude & "&lng=" & longitude & "&tzid=" & timezone & "&formatted=1'"
 set sunset12hrTime to do shell script "echo " & quoted form of json & " | /usr/local/bin/python -c 'import sys, json; print(json.load(sys.stdin)[\"results\"][\"sunset\"][:19].replace(\"T\", \" \"))'"
+
+-- display notification sunset12hrTime with title "Time of Sunset"
 
 -- Step 2: Convert 12-hour time to 24-hour time
 set sunset24hrTime to do shell script "date -j -f '%I:%M:%S %p' '" & sunset12hrTime & "' +'%H:%M:%S'"
