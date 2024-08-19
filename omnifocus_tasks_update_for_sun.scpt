@@ -13,13 +13,23 @@ set hours of sunsetDueTime to word 1 of sunsetTimeParsed
 set minutes of sunsetDueTime to word 2 of sunsetTimeParsed
 set seconds of sunsetDueTime to word 3 of sunsetTimeParsed
 
+set theStartDate to current date
+set hours of theStartDate to 0
+set minutes of theStartDate to 0
+set seconds of theStartDate to 0
+
+set theEndDate to current date
+set hours of theEndDate to 23
+set minutes of theEndDate to 59
+set seconds of theEndDate to 59
+
 -- Step 2: Set the due date for the selected task in OmniFocus
 tell application "OmniFocus"
     tell front document
 
         -- Get today and future tasks with the sunset tag
         set task_elements to flattened tasks whose ¬
-            (completed is false) and (due date is greater than or equal to sunsetDueTime) and (name of primary tag contains "🌅 Sunset")
+            (completed is false) and (due date is greater than or equal to theStartDate) and (due date is less than or equal to theEndDate) and (name of primary tag contains "🌅 Sunset")
 
         repeat with item_ref in task_elements
 
