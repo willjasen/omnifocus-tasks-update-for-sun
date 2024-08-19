@@ -2,7 +2,7 @@
 set latitude to "36.320960"
 set longitude to "-82.341760"
 
-set json to do shell script "curl -s 'https://api.sunrise-sunset.org/json?lat=" & latitude & "&lng=-" & longitude & "&formatted=1'"
+set json to do shell script "curl -s 'https://api.sunrise-sunset.org/json?lat=" & latitude & "&lng=" & longitude & "&formatted=1&tzid=America/New_York'"
 set sunsetTime to do shell script "echo " & quoted form of json & " | /usr/local/bin/python -c 'import sys, json; print(json.load(sys.stdin)[\"results\"][\"sunset\"][:19].replace(\"T\", \" \"))'"
 
 -- Step 2: Convert 12-hour time to 24-hour time
