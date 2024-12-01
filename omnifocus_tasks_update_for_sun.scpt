@@ -5,8 +5,6 @@ set timezone to "America/New_York"
 set json to do shell script "curl -s 'https://api.sunrise-sunset.org/json?lat=" & latitude & "&lng=" & longitude & "&tzid=" & timezone & "&formatted=1'"
 set sunset12hrTime to do shell script "echo " & quoted form of json & " | /usr/local/bin/python -c 'import sys, json; print(json.load(sys.stdin)[\"results\"][\"sunset\"][:19].replace(\"T\", \" \"))'"
 
--- display notification sunset12hrTime with title "Time of Sunset"
-
 -- Step 2: Convert 12-hour time to 24-hour time
 set sunset24hrTime to do shell script "date -j -f '%I:%M:%S %p' '" & sunset12hrTime & "' +'%H:%M:%S'"
 
@@ -34,6 +32,8 @@ tell application "OmniFocus"
         set task_elements to flattened tasks whose ¬
             (completed is false) and (due date is greater than or equal to theStartDate) and (due date is less than or equal to theEndDate)
 
+        set tasksUpdated to 0 -- Initialize a counter for updated tasks
+
         repeat with item_ref in task_elements
 
             set the_task to contents of item_ref
@@ -48,12 +48,21 @@ tell application "OmniFocus"
                 end if
             end repeat
 
-            -- If the "🌅 Sunset" tag is found, update the due date
+            -- If the "🌅 Sunset" tag is found, check the due date
             if sunsetTagExists then
-                set due date of the_task to sunsetDueTime
+                if due date of the_task is not sunsetDueTime then
+                    -- Update the due date only if it doesn't already match
+                    set due date of the_task to sunsetDueTime
+                    set tasksUpdated to tasksUpdated + 1 -- Increment counter
+                end if
             end if
 
         end repeat
+
+        -- Notify user if tasks were updated
+        if tasksUpdated > 0 then
+            display notification (tasksUpdated as text) & " task(s) updated with sunset time." with title "OmniFocus 🌅 Sunset Tasks"
+        end if
 
     end tell
 end tell
