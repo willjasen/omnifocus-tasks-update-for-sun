@@ -30,7 +30,12 @@ tell application "OmniFocus"
 
         -- Get today and future tasks
         set task_elements to flattened tasks whose ¬
-            (completed is false) and (due date is greater than or equal to theStartDate) and (due date is less than or equal to theEndDate)
+            (completed is false) and ¬
+                (due date is greater than or equal to theStartDate) and ¬
+                    (due date is less than or equal to theEndDate) or ¬
+                (planned date is greater than or equal to theStartDate) and ¬
+                    (planned date is less than or equal to theEndDate)
+
 
         set tasksUpdated to 0 -- Initialize a counter for updated tasks
 
@@ -48,12 +53,24 @@ tell application "OmniFocus"
                 end if
             end repeat
 
-            -- If the "🌅 Sunset" tag is found, check the due date
+            -- If the "🌅 Sunset" tag is found, check the due date and planned date
             if sunsetTagExists then
-                if due date of the_task is not sunsetDueTime then
-                    -- Update the due date only if it doesn't already match
-                    set due date of the_task to sunsetDueTime
-                    set tasksUpdated to tasksUpdated + 1 -- Increment counter
+                -- Check if due date is not set first
+                if due date of the_task is not missing value then
+                    if due date of the_task is not sunsetDueTime then
+                        -- Update the due date only if it doesn't already match
+                        set due date of the_task to sunsetDueTime
+                        set tasksUpdated to tasksUpdated + 1 -- Increment counter
+                    end if
+                else
+                    -- Due date is not set, check planned date
+                    if planned date of the_task is not missing value then
+                        if planned date of the_task is not sunsetDueTime then
+                            -- Update the planned date only if it doesn't already match
+                            set planned date of the_task to sunsetDueTime
+                            set tasksUpdated to tasksUpdated + 1 -- Increment counter
+                        end if
+                    end if
                 end if
             end if
 
