@@ -2,17 +2,22 @@
 set latitude to "36.320960"
 set longitude to "-82.341760"
 set timezone to "America/New_York"
+log "Fetching sunset time for lat=" & latitude & " lng=" & longitude & " tz=" & timezone
 set json to do shell script "curl -s 'https://api.sunrise-sunset.org/json?lat=" & latitude & "&lng=" & longitude & "&tzid=" & timezone & "&formatted=1'"
-set sunset12hrTime to do shell script "echo " & quoted form of json & " | /usr/local/bin/python -c 'import sys, json; print(json.load(sys.stdin)[\"results\"][\"sunset\"][:19].replace(\"T\", \" \"))'"
+log "API response: " & json
+set sunset12hrTime to do shell script "echo " & quoted form of json & " | grep -o '\"sunset\":\"[^\"]*\"' | cut -d'\"' -f4"
+log "Sunset (12hr): " & sunset12hrTime
 
 -- Step 2: Convert 12-hour time to 24-hour time
 set sunset24hrTime to do shell script "date -j -f '%I:%M:%S %p' '" & sunset12hrTime & "' +'%H:%M:%S'"
+log "Sunset (24hr): " & sunset24hrTime
 
 -- Step 3: Create a date object for today with the sunset time
 set sunsetDueTime to current date
 set hours of sunsetDueTime to word 1 of sunset24hrTime
 set minutes of sunsetDueTime to word 2 of sunset24hrTime
 set seconds of sunsetDueTime to word 3 of sunset24hrTime
+log "Sunset due time: " & sunsetDueTime
 
 set theStartDate to current date
 set hours of theStartDate to 0
@@ -36,7 +41,7 @@ tell application "OmniFocus"
                 (planned date is greater than or equal to theStartDate) and ¬
                     (planned date is less than or equal to theEndDate)
 
-
+        log "Tasks found to evaluate: " & (count of task_elements)
         set tasksUpdated to 0 -- Initialize a counter for updated tasks
 
         repeat with item_ref in task_elements
@@ -55,20 +60,27 @@ tell application "OmniFocus"
 
             -- If the "🌅 Sunset" tag is found, check the due date and planned date
             if sunsetTagExists then
+                log "Found sunset task: " & name of the_task
                 -- Check if due date is not set first
                 if due date of the_task is not missing value then
                     if due date of the_task is not sunsetDueTime then
                         -- Update the due date only if it doesn't already match
+                        log "Updating due date for: " & name of the_task
                         set due date of the_task to sunsetDueTime
                         set tasksUpdated to tasksUpdated + 1 -- Increment counter
+                    else
+                        log "Due date already correct for: " & name of the_task
                     end if
                 else
                     -- Due date is not set, check planned date
                     if planned date of the_task is not missing value then
                         if planned date of the_task is not sunsetDueTime then
                             -- Update the planned date only if it doesn't already match
+                            log "Updating planned date for: " & name of the_task
                             set planned date of the_task to sunsetDueTime
                             set tasksUpdated to tasksUpdated + 1 -- Increment counter
+                        else
+                            log "Planned date already correct for: " & name of the_task
                         end if
                     end if
                 end if
@@ -76,6 +88,7 @@ tell application "OmniFocus"
 
         end repeat
 
+        log "Total tasks updated: " & tasksUpdated
         -- Notify user if tasks were updated
         if tasksUpdated > 0 then
             display notification (tasksUpdated as text) & " task(s) updated with sunset time." with title "OmniFocus 🌅 Sunset Tasks"
