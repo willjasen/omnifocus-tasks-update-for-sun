@@ -1,3 +1,5 @@
+log("Starting the OmniFocus sunset tasks script!")
+
 -- Step 1: Get the sunset time using a shell command or external tool
 set latitude to "36.320960"
 set longitude to "-82.341760"
@@ -92,3 +94,5 @@ tell application "OmniFocus"
 
     end tell
 end tell
+
+log("Stopped the OmniFocus sunset tasks script!")
