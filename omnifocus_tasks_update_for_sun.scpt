@@ -19,7 +19,7 @@ repeat with dayOffset from 0 to daysCount - 1
     set targetDateString to do shell script "date -v+" & dayOffset & "d +'%Y-%m-%d'"
 
     -- Fetch sunset time for this specific date
-    log "Fetching sunset for " & targetDateString
+    -- log "Fetching sunset for " & targetDateString
     set json to do shell script "curl -s 'https://api.sunrise-sunset.org/json?lat=" & latitude & "&lng=" & longitude & "&tzid=" & timezone & "&formatted=1&date=" & targetDateString & "'"
     set sunset12hrTime to do shell script "echo " & quoted form of json & " | grep -o '\"sunset\":\"[^\"]*\"' | cut -d'\"' -f4"
     log "Sunset (12hr) for " & targetDateString & ": " & sunset12hrTime
@@ -78,14 +78,14 @@ repeat with dayOffset from 0 to daysCount - 1
 
                 -- If the "🌅 Sunset" tag is found, check the due date and planned date
                 if sunsetTagExists then
-                    log "Found sunset task: " & name of the_task
+                    -- log "Found sunset task: " & name of the_task
                     if due date of the_task is not missing value then
                         if due date of the_task is not sunsetDueTime then
                             log "Updating due date for: " & name of the_task
                             set due date of the_task to sunsetDueTime
                             set totalTasksUpdated to totalTasksUpdated + 1
                         else
-                            log "Due date already correct for: " & name of the_task
+                            -- log "Due date already correct for: " & name of the_task
                         end if
                     else
                         if planned date of the_task is not missing value then
@@ -94,7 +94,7 @@ repeat with dayOffset from 0 to daysCount - 1
                                 set planned date of the_task to sunsetDueTime
                                 set totalTasksUpdated to totalTasksUpdated + 1
                             else
-                                log "Planned date already correct for: " & name of the_task
+                                --log "Planned date already correct for: " & name of the_task
                             end if
                         end if
                     end if
