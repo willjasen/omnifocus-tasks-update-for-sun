@@ -1,12 +1,15 @@
 log("Starting the OmniFocus sunset tasks script!")
 
 -- Step 1: Get the sunset time using a shell command or external tool
-set latitude to "36.320960"
-set longitude to "-82.341760"
-set timezone to "America/New_York"
+set configPath to (POSIX path of (path to me as text))
+set configDir to do shell script "dirname " & quoted form of configPath
+set configFile to configDir & "/config.json"
+set latitude to do shell script "cat " & quoted form of configFile & " | grep -o '\"latitude\": *\"[^\"]*\"' | cut -d'\"' -f4"
+set longitude to do shell script "cat " & quoted form of configFile & " | grep -o '\"longitude\": *\"[^\"]*\"' | cut -d'\"' -f4"
+set timezone to do shell script "cat " & quoted form of configFile & " | grep -o '\"timezone\": *\"[^\"]*\"' | cut -d'\"' -f4"
 log "Fetching sunset time for lat=" & latitude & " lng=" & longitude & " tz=" & timezone
 set json to do shell script "curl -s 'https://api.sunrise-sunset.org/json?lat=" & latitude & "&lng=" & longitude & "&tzid=" & timezone & "&formatted=1'"
-log "API response: " & json
+-- log "API response: " & json
 set sunset12hrTime to do shell script "echo " & quoted form of json & " | grep -o '\"sunset\":\"[^\"]*\"' | cut -d'\"' -f4"
 log "Sunset (12hr): " & sunset12hrTime
 
