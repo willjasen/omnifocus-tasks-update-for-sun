@@ -10,14 +10,12 @@ log "Sunset (12hr): " & sunset12hrTime
 
 -- Step 2: Convert 12-hour time to 24-hour time
 set sunset24hrTime to do shell script "date -j -f '%I:%M:%S %p' '" & sunset12hrTime & "' +'%H:%M:%S'"
-log "Sunset (24hr): " & sunset24hrTime
 
 -- Step 3: Create a date object for today with the sunset time
 set sunsetDueTime to current date
 set hours of sunsetDueTime to word 1 of sunset24hrTime
 set minutes of sunsetDueTime to word 2 of sunset24hrTime
 set seconds of sunsetDueTime to word 3 of sunset24hrTime
-log "Sunset due time: " & sunsetDueTime
 
 set theStartDate to current date
 set hours of theStartDate to 0
@@ -36,10 +34,8 @@ tell application "OmniFocus"
         -- Get today and future tasks
         set task_elements to flattened tasks whose ¬
             (completed is false) and ¬
-                (due date is greater than or equal to theStartDate) and ¬
-                    (due date is less than or equal to theEndDate) or ¬
-                (planned date is greater than or equal to theStartDate) and ¬
-                    (planned date is less than or equal to theEndDate)
+            ((due date is greater than or equal to theStartDate and due date is less than or equal to theEndDate) or ¬
+             (planned date is greater than or equal to theStartDate and planned date is less than or equal to theEndDate))
 
         log "Tasks found to evaluate: " & (count of task_elements)
         set tasksUpdated to 0 -- Initialize a counter for updated tasks
