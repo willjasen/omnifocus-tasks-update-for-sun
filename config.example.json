@@ -1,5 +1,6 @@
 {
   "latitude": "40.123",
   "longitude": "-80.456",
-  "timezone": "America/New_York"
+  "timezone": "America/New_York",
+  "days": 3
 }
